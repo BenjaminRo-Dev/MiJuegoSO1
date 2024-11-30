@@ -10,15 +10,19 @@ public class Posicion {
         this.y = y;
     }
     
-    //Devuelve la posición porcentual de x
+    //Se ingresa porcentual, devuelve real
     public int x(int pos){
         return (x/100) * pos;
     }
     
-    //Devuelve la posición porcentual de y
+    //Se ingresa porcentual, devuelve real
     public int y(int pos){
         return (y/100) * pos;
     }
+    
+    
+    
+    
         
     
     
