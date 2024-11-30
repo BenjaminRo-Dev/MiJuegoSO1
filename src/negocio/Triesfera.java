@@ -3,28 +3,24 @@ package negocio;
 import java.awt.Graphics;
 import java.awt.Color;
 
-public class Triesfera {
+public class Triesfera extends PCB {
     
-    private final int x, y;
-    private int diametro;
+    private Esfera e1, e2, e3;
     
     public Triesfera(int x, int y) {
-        diametro = 25;
-        this.x = x;     //Ancho
-        this.y = y;     //Alto
+        this.x = x;     //Posición en el eje x
+        this.y = y;     //Posición en el eje y
+        e1 = new Esfera(x-25, y, Color.red);
+        e2 = new Esfera(x, y, Color.green);
+        e3 = new Esfera(x-12, y+22, Color.blue);
     }
     
     public void dibujar(Graphics g){
-        g.setColor(Color.blue);
-        g.fillOval(x-25, y, diametro, diametro);
-        
-        g.setColor(Color.red);
-        g.fillOval(x, y, diametro, diametro);
-        
-        g.setColor(Color.black);
-        g.fillOval(x-12, y+22 , diametro, diametro);
-       
+        e1.dibujar(g);
+        e2.dibujar(g);
+        e3.dibujar(g);
     }
+    
     
     
     
