@@ -1,23 +1,13 @@
 package presentacion;
-//@author BenRo
+//@author Benjamin Romero
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import javax.swing.JFrame;
-import negocio.Canon;
-import negocio.PanelJuego;
-import negocio.Posicion;
-import negocio.Triesfera;
+import negocio.JuegoSO;
+
 
 public class Juego extends javax.swing.JFrame {
-    private Posicion p;
-    private Triesfera triesfera;
-    private Canon canon;
-    private int x;  //Ancho
-    private int y;  //Alto
-    
-    PanelJuego panelJuego;
-        
+
+    JuegoSO juegoSo;
 
     public Juego() {
         initComponents();
@@ -25,56 +15,21 @@ public class Juego extends javax.swing.JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Juego SO1 - Benjamin Romero");       
         
-        x = 900;
-        y = 700;
-        p = new Posicion(x, y);
-        
-        this.setSize(x, y);
+        this.setSize(JuegoSO.x, JuegoSO.y);
         this.setLocationRelativeTo(null);
         
-        //Inicializacion y posicion de los objetos:
-        triesfera = new Triesfera(p.x(50), p.y(10));
-        canon = new Canon(p.x(50), p.y(85));
         
-        panelJuego = new PanelJuego(triesfera, canon);
-     
-        moverCanon(panelJuego);
-//        this.add(panelJuego);
-        
+        juegoSo = new JuegoSO();
+        juegoSo.iniciarJuego();//TODO: Esta línea tiene que ir en un boton
+
+        this.addKeyListener(juegoSo);
+                
         panelContenedor.setLayout(new java.awt.CardLayout());
-        panelContenedor.add(panelJuego);
+        panelContenedor.add(juegoSo);
 //        panelContenedor.setVisible(false);//TODO: Descomentar esta línea
         panelContenedor.setVisible(true);
         
     }
-    
-    private void moverCanon(PanelJuego panelJuego){
-        this.addKeyListener(new KeyListener() {
-            
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_LEFT)
-                    canon.moverIzquierda();
-                else if (e.getKeyCode() == KeyEvent.VK_RIGHT){
-                    canon.moverDerecha();
-                }
-                panelJuego.repaint();
-            }
-
-            @Override
-            public void keyTyped(KeyEvent e) {}
-            @Override
-            public void keyReleased(KeyEvent e) {}
-        });
-    };
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     
