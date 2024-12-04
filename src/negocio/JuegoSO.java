@@ -26,7 +26,7 @@ public class JuegoSO extends JPanel implements KeyListener {
     //Clases auxiliares:
     private Posicion p;
 
-     public JuegoSO() {
+    public JuegoSO() {
         p = new Posicion(x, y);
         this.triesferas = new ArrayList<>();
         this.esferas = new ArrayList<>();
@@ -59,6 +59,19 @@ public class JuegoSO extends JPanel implements KeyListener {
         hiloJuego.start(); // Iniciar el hilo del juego
     }
 
+    private void dispararEsfera() {
+        try {
+            System.out.println("try");
+            Esfera esfera = new Esfera(canon.x, canon.y, Color.blue);
+            cola.meter(esfera);
+            esferas.add(esfera);
+//            repaint();
+        } catch (Exception ex) {
+            System.out.println("catch");
+            Logger.getLogger(JuegoSO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     private void planificador() {
         try {
             PRUN = cola.sacar();
@@ -68,23 +81,45 @@ public class JuegoSO extends JPanel implements KeyListener {
             return;
         }
 
+        if (PRUN != null) {
+            System.out.println("Longitud de la cola: " + cola.length());
+//            System.out.println("TIPO PRUN: " + PRUN.tipo);
+        } else {
+            System.out.println("PRUN NULL");
+            estado = 1;
+            System.out.println("Juego detenido");
+        }
+
         // Verificar si ya es tiempo de que este proceso se mueva
         if (System.currentTimeMillis() - PRUN.hora >= PRUN.retardo) {
-        // System.out.println("YA ES HORA");
+            // System.out.println("YA ES HORA");
 
             PRUN.mover();// Mover el proceso actual
             repaint();
-
             PRUN.hora = System.currentTimeMillis();// Actualizar el tiempo de ejecución del proceso
 
             // Reinsertar el proceso en la cola
-            try {
-                cola.meter(PRUN);
-            } catch (Exception e) {
-                System.out.println("NO se pudo meter el proceso");
+            if (PRUN.tipo == 1) {//Si es esfera
+                if (!PRUN.fueraDePantalla()) {
+                    try {
+                        cola.meter(PRUN);
+                    } catch (Exception e) {
+                        System.out.println("NO se pudo meter el proceso");
+                    }
+                }else{
+                    //Si esta fuera, ya no repintarla:
+                    this.esferas.remove(PRUN);
+                }
+            } else {
+                try {
+                    cola.meter(PRUN);
+                } catch (Exception e) {
+                    System.out.println("NO se pudo meter el proceso");
+                }
             }
+
         } else {// Si aún no es hora, se reinserta el proceso sin moverlo
-            
+
             try {
                 cola.meter(PRUN);
             } catch (Exception e) {
@@ -117,8 +152,7 @@ public class JuegoSO extends JPanel implements KeyListener {
         } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             canon.moverDerecha();
         } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            //Disparar
-            iniciarJuego();
+            dispararEsfera();
         }
         repaint();//Repinta todo
 //        borrar(PRUN, antX);
@@ -133,29 +167,16 @@ public class JuegoSO extends JPanel implements KeyListener {
     public void keyReleased(KeyEvent e) {
     }
 
-    private void dispararBala() {
-        try {
-            System.out.println("try");
-            Esfera esfera = new Esfera(canon.x, canon.y, Color.pink);
-//            cola.meter(esfera);
-            esferas.add(esfera);
-            repaint();
-        } catch (Exception ex) {
-            System.out.println("catch");
-            Logger.getLogger(JuegoSO.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     private void cicloJuego() {
         while (estado == 0) {
             planificador();
 
             // Pausa en la ejecución
-//            try {
-//                Thread.sleep(50);  // 500 milisegundos entre cada iteración (ajústalo según la velocidad deseada)
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                Thread.sleep(50);  // 500 milisegundos entre cada iteración (ajústalo según la velocidad deseada)
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

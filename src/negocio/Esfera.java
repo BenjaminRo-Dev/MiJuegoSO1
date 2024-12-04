@@ -6,7 +6,7 @@ import java.awt.Graphics;
 public class Esfera extends PCB{
     
     private final int diametro = 25;        //Tamaño de la esfera
-    private final int velocidad = 5;
+    private final int velocidad = 20;
     
     public Esfera(int x, int y, Color color){
         this.x = x;
@@ -14,6 +14,10 @@ public class Esfera extends PCB{
         this.ancho = diametro;
         this.alto = diametro;
         this.color = color;
+        
+        this.tipo = 1;  //1 = Esfera
+        this.retardo = 200;
+        this.hora = System.currentTimeMillis();
         
         
     }
@@ -27,6 +31,7 @@ public class Esfera extends PCB{
         y -= velocidad;
     }
     
+    @Override
     public boolean fueraDePantalla(){
         return y < 0;
     }

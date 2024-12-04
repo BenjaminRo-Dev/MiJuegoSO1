@@ -18,4 +18,9 @@ public class PCB {
     public void mover(){
         System.out.println("Mover Padre");
     }
+    
+    public boolean fueraDePantalla(){
+        System.out.println("Fuera de pantalla del Padre");
+        return false;
+    }
 }
