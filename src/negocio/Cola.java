@@ -18,7 +18,7 @@ public class Cola {
     }
     
     public int length(){
-        return queue.size() + 1;    //Devuelve la longitud de la cola
+        return queue.size();    //Devuelve la longitud de la cola
     }
     
     public void meter(PCB p) throws Exception {

@@ -101,30 +101,28 @@ public class JuegoSO extends JPanel implements KeyListener {
 
         // Verificar si ya es tiempo de que este proceso se mueva
         if (System.currentTimeMillis() - PRUN.hora >= PRUN.retardo) {
-            // System.out.println("YA ES HORA");
 
             PRUN.mover();// Mover el proceso actual
             repaint();
             PRUN.hora = System.currentTimeMillis();// Actualizar el tiempo de ejecución del proceso
 
+            verificarColision();
+//            System.out.println(this.cola.length() + 1);//+1 porque se saco el prun actual
 
-            // Reinsertar el proceso en la cola
-            if (PRUN.tipo == 1) {//Si es esfera
-                if (!PRUN.fueraDePantalla()) {
-                    try {
-                        cola.meter(PRUN);
-                    } catch (Exception e) {
-                        System.out.println("NO se pudo meter el proceso");
-                    }
-                } else {
-                    //Si esta fuera, ya no repintarla:
-                    this.esferas.remove(PRUN);
-                }
-            } else {
+            if (!PRUN.fueraDePantalla()) {
                 try {
                     cola.meter(PRUN);
                 } catch (Exception e) {
                     System.out.println("NO se pudo meter el proceso");
+                }
+            } else {
+                //Si esta fuera, ya no repintarla:
+                if (this.PRUN.tipo == 1)//Tipo esfera
+                {
+                    this.esferas.remove(PRUN);
+                } else if (this.PRUN.tipo == 0)//Tipo triesfera
+                {
+                    this.triesferas.remove(PRUN);
                 }
             }
 
@@ -136,7 +134,6 @@ public class JuegoSO extends JPanel implements KeyListener {
                 System.out.println("NO se pudo meter el proceso");
             }
         }
-        verificarColision();
     }
 
     @Override
@@ -215,28 +212,26 @@ public class JuegoSO extends JPanel implements KeyListener {
             triesfera.e3.setColor(disparo.getColor());
         }
     }
-    
-    private void verificarColision(){
+
+    private void verificarColision() {
         for (Esfera disparo : esferas) { // Recorre todas las esferas disparadas
-                for (Triesfera triesfera : triesferas) { // Recorre todas las triesferas
-                    if (detectarColision(disparo, triesfera)) {
-                        cambiarColorTriesfera(triesfera, disparo);
-                        disparo.y = -100;
-                        verificarTriesferaMismoColor(triesfera);
-                    }
+            for (Triesfera triesfera : triesferas) { // Recorre todas las triesferas
+                if (detectarColision(disparo, triesfera)) {
+                    cambiarColorTriesfera(triesfera, disparo);
+                    disparo.y = -100;
+                    verificarTriesferaMismoColor(triesfera);
                 }
             }
-        
+        }
+
     }
-    
-    private void verificarTriesferaMismoColor(Triesfera triesfera){
-        if(triesfera.e1.getColor().equals(triesfera.e2.getColor()) &&
-           triesfera.e1.getColor().equals(triesfera.e3.getColor())){
-//            System.out.println("Triesfera eliminada");
-            this.triesferas.remove(triesfera);
-            triesfera = null;
-            
-            
+
+    private void verificarTriesferaMismoColor(Triesfera triesfera) {
+        if (triesfera.e1.getColor().equals(triesfera.e2.getColor())
+                && triesfera.e1.getColor().equals(triesfera.e3.getColor())) {
+            System.out.println("Triesfera eliminada");
+            triesfera.y = -100;
+
         }
     }
 //    private void borrar(PCB pcb, int antX) {
