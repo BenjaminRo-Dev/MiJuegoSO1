@@ -6,7 +6,7 @@ import java.awt.Graphics;
 public class Esfera extends PCB{
     
     private final int diametro = 25;        //Tamaño de la esfera
-    private final int velocidad = 20;
+    private final int velocidad = 45;
     
     public Esfera(int x, int y, Color color){
         this.x = x;

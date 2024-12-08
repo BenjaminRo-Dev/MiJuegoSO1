@@ -5,7 +5,7 @@ import java.awt.Color;
 
 public class Triesfera extends PCB {
     
-    private Esfera e1, e2, e3;
+    public Esfera e1, e2, e3;
     private final int velocidad = 20;
     private int medio, lugar, cantLugares;
     
@@ -16,7 +16,7 @@ public class Triesfera extends PCB {
     public Triesfera(int y, int lugar, int cantLugares) {
         p = new Posicion(JuegoSO.x, JuegoSO.y);
         
-        medio = (100/cantLugares) / 2;                      //Parte del medio del lugar
+        medio = (100/cantLugares) / 2;                      //Centro del lugar
         int x = (p.x(100/cantLugares * lugar - medio));     //Posición de la triesfera
         this.lugar = lugar;
         this.cantLugares = cantLugares;
@@ -41,8 +41,8 @@ public class Triesfera extends PCB {
     }
     
     public void moverIzquierda(){
-        
-        if(x > p.x(100/cantLugares * (lugar-1))){
+        //x - esfera.diametro
+        if(x-25 > p.x(100/cantLugares * (lugar-1))){
             e1.x -= velocidad;
             e2.x -= velocidad;
             e3.x -= velocidad;
@@ -53,7 +53,7 @@ public class Triesfera extends PCB {
     }
     
     public void moverDerecha(){
-        if( x < p.x(100/cantLugares * (lugar))){
+        if( x+25 < p.x(100/cantLugares * (lugar))){
             e1.x += velocidad;
             e2.x += velocidad;
             e3.x += velocidad;
@@ -83,6 +83,11 @@ public class Triesfera extends PCB {
 //            default:
 //                throw new AssertionError();
 //        }
+    }
+    
+    @Override
+    public boolean fueraDePantalla(){
+        return y < 0;
     }
     
     

@@ -23,4 +23,12 @@ public class PCB {
         System.out.println("Fuera de pantalla del Padre");
         return false;
     }
+    
+    public Color getColor(){
+        return this.color;
+    }
+    
+    public void setColor(Color color){
+        this.color = color;
+    }
 }
