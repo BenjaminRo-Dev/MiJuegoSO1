@@ -2,6 +2,7 @@ package negocio;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.ArrayList;
 
 public class PCB {
 //    int PID, dir, ancho, alto;
@@ -30,5 +31,9 @@ public class PCB {
     
     public void setColor(Color color){
         this.color = color;
+    }
+    
+    public void disparar(Cola cola, ArrayList<Bala> balas){
+        System.out.println("Disparar del padre");
     }
 }

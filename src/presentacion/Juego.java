@@ -20,7 +20,7 @@ public class Juego extends javax.swing.JFrame {
         
         
         juegoSo = new JuegoSO();
-        juegoSo.iniciarJuego();//TODO: Esta línea tiene que ir en un boton
+//        juegoSo.iniciarJuego();//TODO: Esta línea tiene que ir en un boton
 
         this.addKeyListener(juegoSo);
                 
@@ -45,7 +45,7 @@ public class Juego extends javax.swing.JFrame {
         panelContenedor = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
         m_iniciar = new javax.swing.JMenu();
-        jMenu2 = new javax.swing.JMenu();
+        menu_pausar = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -72,8 +72,13 @@ public class Juego extends javax.swing.JFrame {
         });
         jMenuBar1.add(m_iniciar);
 
-        jMenu2.setText("Edit");
-        jMenuBar1.add(jMenu2);
+        menu_pausar.setText("Pausar");
+        menu_pausar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menu_pausarMouseClicked(evt);
+            }
+        });
+        jMenuBar1.add(menu_pausar);
 
         setJMenuBar(jMenuBar1);
 
@@ -81,8 +86,14 @@ public class Juego extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void m_iniciarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_m_iniciarMouseClicked
-        panelContenedor.setVisible(true);
+//        panelContenedor.setVisible(true);ç
+        juegoSo.iniciarJuego();
+        menu_pausar.transferFocusUpCycle();
     }//GEN-LAST:event_m_iniciarMouseClicked
+
+    private void menu_pausarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menu_pausarMouseClicked
+        juegoSo.pausarJuego();
+    }//GEN-LAST:event_menu_pausarMouseClicked
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -117,9 +128,9 @@ public class Juego extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenu m_iniciar;
+    private javax.swing.JMenu menu_pausar;
     private javax.swing.JPanel panelContenedor;
     // End of variables declaration//GEN-END:variables
 }

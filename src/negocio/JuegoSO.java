@@ -5,8 +5,10 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class JuegoSO extends JPanel implements KeyListener {
@@ -17,21 +19,26 @@ public class JuegoSO extends JPanel implements KeyListener {
     public Canon canon;
     private ArrayList<Triesfera> triesferas;
     private ArrayList<Esfera> esferas;
+    private ArrayList<Bala> balas;
 
     private PCB PRUN;
 
     private Cola cola;
-    private int estado;
+    private int estado = 1;
 
     private int indiceColor = 0;
 
     //Clases auxiliares:
     private Posicion p;
 
+    private long tiempoUltimoDisparo = 0;
+    private final long tiempoEntreDisparos = 2000; // 2 segundos de espera entre disparos
+
     public JuegoSO() {
         p = new Posicion(x, y);
         this.triesferas = new ArrayList<>();
         this.esferas = new ArrayList<>();
+        this.balas = new ArrayList<>();
 
         cola = new Cola();
 
@@ -54,14 +61,27 @@ public class JuegoSO extends JPanel implements KeyListener {
     }
 
     public void iniciarJuego() {
-        estado = 0;
-        Thread hiloJuego = new Thread(() -> {
-            cicloJuego(); // Ejecutar el ciclo del juego en un hilo separado
-        });
-        hiloJuego.start(); // Iniciar el hilo del juego
+        if (estado != 0) {
+            estado = 0;
+            Thread hiloJuego = new Thread(() -> {
+                cicloJuego(); // Ejecutar el ciclo del juego en un hilo separado
+            });
+            hiloJuego.start(); // Iniciar el hilo del juego
+        }
+    }
+
+    public void pausarJuego() {
+        if (estado == 0) {
+            estado = 1;
+        } else {
+            iniciarJuego();
+        }
     }
 
     private void dispararEsfera() {
+        //long tiempoActual = System.currentTimeMillis();
+
+        //if (tiempoActual - tiempoUltimoDisparo >= tiempoEntreDisparos) {
         try {
             Color colorDisparo;
 
@@ -81,22 +101,44 @@ public class JuegoSO extends JPanel implements KeyListener {
             }
 
             Esfera esfera = new Esfera(canon.x, canon.y, colorDisparo);
-            cola.meter(esfera);
+            synchronized (this) {
+                cola.meter(esfera);
+            }
             esferas.add(esfera);
             indiceColor = (indiceColor + 1) % 3;
         } catch (Exception ex) {
             System.out.println("ERROR: No se pudo disparar la esfera: ");
             Logger.getLogger(JuegoSO.class.getName()).log(Level.SEVERE, null, ex);
         }
+//        } else {
+//            // Si no ha pasado suficiente tiempo, mostramos el mensaje de espera
+//            System.out.println("Espera un momento antes de disparar otra esfera.");
+//        }
     }
 
     private void planificador() {
         try {
-            PRUN = cola.sacar();
+            synchronized (this) {
+                PRUN = cola.sacar();
+            }
+
         } catch (Exception e) {
             System.out.println("CATCH - No hay nada para sacar");
             estado = 1;  // Cambia el estado del juego si no hay procesos
             return;
+        }
+
+        if (PRUN == null) {
+            this.estado = 1;
+            System.out.println("PRRUN ES NULL NO SE PUEDE PROCESAR");
+            return;
+        }
+
+//        if (PRUN.tipo == 1) {//Si es triesfera
+//            ((Triesfera) PRUN).disparar(cola, balas);
+//        }
+        if (PRUN instanceof Triesfera) {
+            ((Triesfera) PRUN).disparar(cola, balas);
         }
 
         // Verificar si ya es tiempo de que este proceso se mueva
@@ -123,6 +165,13 @@ public class JuegoSO extends JPanel implements KeyListener {
                 } else if (this.PRUN.tipo == 0)//Tipo triesfera
                 {
                     this.triesferas.remove(PRUN);
+                    if (triesferas.size() == 0) {
+                        this.estado = 1;
+                        JOptionPane.showMessageDialog(null, "Ganaste =)");
+                    }
+
+                } else if (PRUN.tipo == 2) { //Tipo bala
+                    balas.remove(PRUN);
                 }
             }
 
@@ -146,6 +195,10 @@ public class JuegoSO extends JPanel implements KeyListener {
             esfera.dibujar(g);
         }
 
+        for (Bala bala : balas) {
+            bala.dibujar(g);
+        }
+
         for (Triesfera triesfera : triesferas) {
             triesfera.dibujar(g);
         }
@@ -160,7 +213,9 @@ public class JuegoSO extends JPanel implements KeyListener {
         } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             canon.moverDerecha();
         } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+
             dispararEsfera();
+
         }
         repaint();//Repinta todo
 
@@ -186,11 +241,11 @@ public class JuegoSO extends JPanel implements KeyListener {
             planificador();
 
             // Pausa en la ejecución
-            try {
-                Thread.sleep(1);  // 500 milisegundos entre cada iteración (ajústalo según la velocidad deseada)
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(1);  // 500 milisegundos entre cada iteración (ajústalo según la velocidad deseada)
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 
@@ -214,16 +269,18 @@ public class JuegoSO extends JPanel implements KeyListener {
     }
 
     private void verificarColision() {
-        for (Esfera disparo : esferas) { // Recorre todas las esferas disparadas
-            for (Triesfera triesfera : triesferas) { // Recorre todas las triesferas
+        Iterator<Esfera> iterador = esferas.iterator();
+        while (iterador.hasNext()) {
+            Esfera disparo = iterador.next(); // Obtengo la siguiente esfera disparada
+            for (Triesfera triesfera : triesferas) { // Recorro todas las triesferas
                 if (detectarColision(disparo, triesfera)) {
                     cambiarColorTriesfera(triesfera, disparo);
                     disparo.y = -100;
                     verificarTriesferaMismoColor(triesfera);
+                    break;  //Finaliza el loop
                 }
             }
         }
-
     }
 
     private void verificarTriesferaMismoColor(Triesfera triesfera) {

@@ -2,6 +2,8 @@ package negocio;
 
 import java.awt.Graphics;
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class Triesfera extends PCB {
     
@@ -12,6 +14,10 @@ public class Triesfera extends PCB {
     private boolean bandera = true;
     
     private Posicion p;
+    
+    private long tiempoUltimoDisparo = 0;
+//    private long tiempoEntreDisparos = 3000; // Tiempo de espera entre disparos de triesferas (3 segundos)
+    private long tiempoEntreDisparos;
     
     public Triesfera(int y, int lugar, int cantLugares) {
         p = new Posicion(JuegoSO.x, JuegoSO.y);
@@ -88,6 +94,27 @@ public class Triesfera extends PCB {
     @Override
     public boolean fueraDePantalla(){
         return y < 0;
+    }
+    
+    @Override
+    public void disparar(Cola cola, ArrayList<Bala> balas) {
+        long tiempoActual = System.currentTimeMillis();
+        if (tiempoActual - tiempoUltimoDisparo >= tiempoEntreDisparos) {
+            try {
+                Bala bala = new Bala(this.x, this.y, Color.black); // Bala de triesfera
+                cola.meter(bala); // Agregamos la bala al planificador
+                balas.add(bala);  // Añadimos la bala a la lista de balas
+                tiempoUltimoDisparo = tiempoActual;
+
+                // Generar un nuevo tiempo aleatorio entre disparos para la siguiente bala
+                Random random = new Random();
+                this.tiempoEntreDisparos = 1000 + random.nextInt(4000); // Nuevo intervalo aleatorio
+                System.out.println("Triesfera disparó una bala.");
+            } catch (Exception ex) {
+                System.out.println("ERROR: No se pudo disparar la bala desde la triesfera.");
+                System.out.println(ex);
+            }
+        }
     }
     
     
