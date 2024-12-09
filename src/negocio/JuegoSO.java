@@ -31,9 +31,6 @@ public class JuegoSO extends JPanel implements KeyListener {
     //Clases auxiliares:
     private Posicion p;
 
-    private long tiempoUltimoDisparo = 0;
-    private final long tiempoEntreDisparos = 2000; // 2 segundos de espera entre disparos
-
     public JuegoSO() {
         p = new Posicion(x, y);
         this.triesferas = new ArrayList<>();
@@ -78,44 +75,6 @@ public class JuegoSO extends JPanel implements KeyListener {
         }
     }
 
-    private void dispararEsfera() {
-        //long tiempoActual = System.currentTimeMillis();
-
-        //if (tiempoActual - tiempoUltimoDisparo >= tiempoEntreDisparos) {
-        try {
-            Color colorDisparo;
-
-            switch (indiceColor) {
-                case 0:
-                    colorDisparo = Color.red;
-                    break;
-                case 1:
-                    colorDisparo = Color.green;
-                    break;
-                case 2:
-                    colorDisparo = Color.blue;
-                    break;
-                default:
-                    colorDisparo = Color.blue;
-                    break;
-            }
-
-            Esfera esfera = new Esfera(canon.x, canon.y, colorDisparo);
-            synchronized (this) {
-                cola.meter(esfera);
-            }
-            esferas.add(esfera);
-            indiceColor = (indiceColor + 1) % 3;
-        } catch (Exception ex) {
-            System.out.println("ERROR: No se pudo disparar la esfera: ");
-            Logger.getLogger(JuegoSO.class.getName()).log(Level.SEVERE, null, ex);
-        }
-//        } else {
-//            // Si no ha pasado suficiente tiempo, mostramos el mensaje de espera
-//            System.out.println("Espera un momento antes de disparar otra esfera.");
-//        }
-    }
-
     private void planificador() {
         try {
             synchronized (this) {
@@ -134,9 +93,6 @@ public class JuegoSO extends JPanel implements KeyListener {
             return;
         }
 
-//        if (PRUN.tipo == 1) {//Si es triesfera
-//            ((Triesfera) PRUN).disparar(cola, balas);
-//        }
         if (PRUN instanceof Triesfera) {
             ((Triesfera) PRUN).disparar(cola, balas);
         }
@@ -148,9 +104,9 @@ public class JuegoSO extends JPanel implements KeyListener {
             repaint();
             PRUN.hora = System.currentTimeMillis();// Actualizar el tiempo de ejecución del proceso
 
-            verificarColision();
-            verificarColisionCanon();
-            System.out.println(this.cola.length() + 1);//+1 porque se saco el prun actual
+            verificarColisionTriesfera();
+            canon.verificarColisionCanon(balas);
+//            System.out.println(this.cola.length() + 1);//+1 porque se saco el prun actual
 
             if (!PRUN.fueraDePantalla()) {
                 try {
@@ -169,6 +125,7 @@ public class JuegoSO extends JPanel implements KeyListener {
                     if (triesferas.size() == 0) {
                         this.estado = 1;
                         JOptionPane.showMessageDialog(null, "Ganaste =)");
+                        System.exit(0);
                     }
 
                 } else if (PRUN.tipo == 2) { //Tipo bala
@@ -208,25 +165,16 @@ public class JuegoSO extends JPanel implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-//        int antX = canon.x;
         if (e.getKeyCode() == KeyEvent.VK_LEFT) {
             canon.moverIzquierda();
         } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             canon.moverDerecha();
         } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-
-            dispararEsfera();
-
+            synchronized (this) {
+                canon.dispararEsfera(esferas, cola);
+            }
         }
-        repaint();//Repinta todo
-
-        //        System.out.println(this.esferas.size());
-        //        System.out.println(this.triesferas.getFirst().x);
-        //        borrar(PRUN, antX);
-        //        repaint(canon.x - 15, canon.y, 60, 60);  // Nueva área
-        {
-
-        }
+        repaint();
     }
 
     @Override
@@ -249,74 +197,21 @@ public class JuegoSO extends JPanel implements KeyListener {
 //            }
         }
     }
-    
-    public boolean detectarColisionCanon(Bala disparo, Canon canon) {
-        int distanciaX = Math.abs(disparo.x - canon.x);
-        int distanciaY = Math.abs(disparo.y - canon.y);
 
-        return (distanciaX < 30 && distanciaY < 30);
-    }
-    
-    private void verificarColisionCanon() {
-        Iterator<Bala> iterador = balas.iterator();
-        while (iterador.hasNext()) {
-            Bala disparo = iterador.next(); // Obtengo la siguiente esfera disparada
-            for (Bala bala : balas) { // Recorro todas las triesferas
-                if (detectarColisionCanon(disparo, canon)) {
-                    System.out.println("Cañon eliminado");
-                    JOptionPane.showMessageDialog(null, "Perdiste =(");
-//                    cambiarColorTriesfera(bala, disparo);
-                    disparo.y = +100;
-//                    verificarTriesferaMismoColor(bala);
-                    break;  //Finaliza el loop
-                }
-            }
-        }
-    }
 
-    public boolean detectarColision(Esfera disparo, Triesfera triesfera) {
-        // Verifica si las posiciones del disparo están cerca de la triesfera
-        int distanciaX = Math.abs(disparo.x - triesfera.x);
-        int distanciaY = Math.abs(disparo.y - triesfera.y);
-
-        return (distanciaX < 50 && distanciaY < 50); // 50 es un rango aproximado
-    }
-
-    public void cambiarColorTriesfera(Triesfera triesfera, Esfera disparo) {
-        // Verifica qué esferas tienen un color diferente al disparo
-        if (!triesfera.e1.getColor().equals(disparo.getColor())) {
-            triesfera.e1.setColor(disparo.getColor());
-        } else if (!triesfera.e2.getColor().equals(disparo.getColor())) {
-            triesfera.e2.setColor(disparo.getColor());
-        } else if (!triesfera.e3.getColor().equals(disparo.getColor())) {
-            triesfera.e3.setColor(disparo.getColor());
-        }
-    }
-
-    private void verificarColision() {
+    private void verificarColisionTriesfera() {
         Iterator<Esfera> iterador = esferas.iterator();
         while (iterador.hasNext()) {
             Esfera disparo = iterador.next(); // Obtengo la siguiente esfera disparada
             for (Triesfera triesfera : triesferas) { // Recorro todas las triesferas
-                if (detectarColision(disparo, triesfera)) {
-                    cambiarColorTriesfera(triesfera, disparo);
+                if (triesfera.detectarColision(disparo)) {
+                    triesfera.cambiarColor(disparo);
                     disparo.y = -100;
-                    verificarTriesferaMismoColor(triesfera);
+                    triesfera.verificarTriesferaMismoColor();
                     break;  //Finaliza el loop
                 }
             }
         }
     }
 
-    private void verificarTriesferaMismoColor(Triesfera triesfera) {
-        if (triesfera.e1.getColor().equals(triesfera.e2.getColor())
-                && triesfera.e1.getColor().equals(triesfera.e3.getColor())) {
-            System.out.println("Triesfera eliminada");
-            triesfera.y = -100;
-
-        }
-    }
-//    private void borrar(PCB pcb, int antX) {
-//        repaint(antX - 15, pcb.y, 60, 60);  // Área aproximada
-//    }
 }

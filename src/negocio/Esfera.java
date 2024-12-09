@@ -4,11 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class Esfera extends PCB{
-    
-    private final int diametro = 25;        //Tamaño de la esfera
-    private final int velocidad = 45;
-    
+        
     public Esfera(int x, int y, Color color){
+        
+        this.diametro = 25;
+        this.velocidad = 45;
+        
         this.x = x;
         this.y = y;
         this.ancho = diametro;
@@ -19,14 +20,15 @@ public class Esfera extends PCB{
         this.retardo = 200;
         this.hora = System.currentTimeMillis();
         
-        
     }
     
+    @Override
     public void dibujar(Graphics g){
         g.setColor(this.color);
         g.fillOval(x, y, this.diametro, this.diametro);
     }
     
+    @Override
     public void mover(){
         y -= velocidad;
     }

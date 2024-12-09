@@ -11,6 +11,16 @@ public class PCB {
     int ancho, alto;
     Color color;
     long hora, retardo;
+    int velocidad;
+    
+    //Para la triesfera:
+    int medio, lugar, cantLugares;
+    boolean bandera;
+    long tiempoUltimoDisparo;
+    long tiempoEntreDisparos;
+    
+    //Para la esfera:
+    int diametro;        //Tamaño de la esfera
     
     public void dibujar(Graphics g){
         

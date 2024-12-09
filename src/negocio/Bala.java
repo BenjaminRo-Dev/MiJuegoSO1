@@ -9,10 +9,10 @@ import java.awt.Graphics;
 
 public class Bala extends PCB{
     
-    private final int diametro = 10;        //Tamaño de la bala
-    private final int velocidad = 30;
-    
     public Bala(int x, int y, Color color){
+        this.diametro = 10;
+        this.velocidad = 30;
+        
         this.x = x;
         this.y = y;
         this.ancho = diametro;
