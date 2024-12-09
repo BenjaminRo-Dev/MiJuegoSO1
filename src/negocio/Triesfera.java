@@ -109,7 +109,7 @@ public class Triesfera extends PCB {
                 // Generar un nuevo tiempo aleatorio entre disparos para la siguiente bala
                 Random random = new Random();
                 this.tiempoEntreDisparos = 1000 + random.nextInt(4000); // Nuevo intervalo aleatorio
-                System.out.println("Triesfera disparó una bala.");
+//                System.out.println("Triesfera disparó una bala.");
             } catch (Exception ex) {
                 System.out.println("ERROR: No se pudo disparar la bala desde la triesfera.");
                 System.out.println(ex);

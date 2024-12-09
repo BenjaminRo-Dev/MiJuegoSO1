@@ -149,7 +149,8 @@ public class JuegoSO extends JPanel implements KeyListener {
             PRUN.hora = System.currentTimeMillis();// Actualizar el tiempo de ejecución del proceso
 
             verificarColision();
-//            System.out.println(this.cola.length() + 1);//+1 porque se saco el prun actual
+            verificarColisionCanon();
+            System.out.println(this.cola.length() + 1);//+1 porque se saco el prun actual
 
             if (!PRUN.fueraDePantalla()) {
                 try {
@@ -248,13 +249,37 @@ public class JuegoSO extends JPanel implements KeyListener {
 //            }
         }
     }
+    
+    public boolean detectarColisionCanon(Bala disparo, Canon canon) {
+        int distanciaX = Math.abs(disparo.x - canon.x);
+        int distanciaY = Math.abs(disparo.y - canon.y);
+
+        return (distanciaX < 30 && distanciaY < 30);
+    }
+    
+    private void verificarColisionCanon() {
+        Iterator<Bala> iterador = balas.iterator();
+        while (iterador.hasNext()) {
+            Bala disparo = iterador.next(); // Obtengo la siguiente esfera disparada
+            for (Bala bala : balas) { // Recorro todas las triesferas
+                if (detectarColisionCanon(disparo, canon)) {
+                    System.out.println("Cañon eliminado");
+                    JOptionPane.showMessageDialog(null, "Perdiste =(");
+//                    cambiarColorTriesfera(bala, disparo);
+                    disparo.y = +100;
+//                    verificarTriesferaMismoColor(bala);
+                    break;  //Finaliza el loop
+                }
+            }
+        }
+    }
 
     public boolean detectarColision(Esfera disparo, Triesfera triesfera) {
-        // Verifica si las posiciones del disparo están cerca de la triesfera (ajusta el rango de colisión según sea necesario)
+        // Verifica si las posiciones del disparo están cerca de la triesfera
         int distanciaX = Math.abs(disparo.x - triesfera.x);
         int distanciaY = Math.abs(disparo.y - triesfera.y);
 
-        return (distanciaX < 50 && distanciaY < 50); // 50 es un rango aproximado, ajusta según el tamaño de los objetos
+        return (distanciaX < 50 && distanciaY < 50); // 50 es un rango aproximado
     }
 
     public void cambiarColorTriesfera(Triesfera triesfera, Esfera disparo) {
